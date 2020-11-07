@@ -88,7 +88,7 @@ plt.yticks(fontsize=18)
 
 plt.ylabel('Response Gain', fontsize=18)
 plt.xlabel('Frequency (Hz)', fontsize=18)
-plt.text(2, 0.8, 'Dr. Niraj Kumar Jha - all rights reserved')
+plt.text(4, 1.2, 'Dr. Niraj Kumar Jha - all rights reserved')
 
 st.pyplot(plt)
 

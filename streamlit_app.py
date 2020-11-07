@@ -29,7 +29,7 @@ Quarter-car response to road, tyre/wheel, and body inputs
 import numpy as np
 import streamlit as st
 import matplotlib.pyplot as plt
-
+import latex
 
 
 #st.title("Quarter-car response to road, tyre/wheel, and body inputs")

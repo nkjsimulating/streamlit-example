@@ -16,23 +16,81 @@ In the meantime, below is an example of what you can do with just a few lines of
 """
 
 
-with st.echo(code_location='below'):
-    total_points = st.slider("Number of points in spiral", 1, 5000, 2000)
-    num_turns = st.slider("Number of turns in spiral", 1, 100, 9)
+# Dr Niraj Kumar Jha
+# Date -  05th Nov
 
-    Point = namedtuple('Point', 'x y')
-    data = []
+"""
+"""
+"""
+Quarter-car response to road, tyre/wheel, and body inputs
+©Dr. Niraj Kumar Jha
+"""
 
-    points_per_turn = total_points / num_turns
+import numpy as np
+import streamlit as st
+import matplotlib.pyplot as plt
+from matplotlib import rcParams
+rcParams['font.family'] = 'serif'
+rcParams['font.serif'] = ['Computer Modern Roman']
+rcParams['text.usetex'] = True
 
-    for curr_point_num in range(total_points):
-        curr_turn, i = divmod(curr_point_num, points_per_turn)
-        angle = (curr_turn + 1) * 2 * math.pi * i / points_per_turn
-        radius = curr_point_num / total_points
-        x = radius * math.cos(angle)
-        y = radius * math.sin(angle)
-        data.append(Point(x, y))
+#st.title("Quarter-car response to road, tyre/wheel, and body inputs")
 
-    st.altair_chart(alt.Chart(pd.DataFrame(data), height=500, width=500)
-        .mark_circle(color='#0068c9', opacity=0.5)
-        .encode(x='x:Q', y='y:Q'))
+k_tyre = st.sidebar.number_input("tyre stiffness", value=10000, step=1000) # tire stiffness (N/m)
+k_spring = st.sidebar.number_input("spring stiffness", value=1000, step=500)
+damping_spring =st.sidebar.number_input("damping spring", value=350, step=50) ## tuned for comfort CS = 24.67
+                                                                             # tuned for handling CS = 1897.9
+m_sprung = st.sidebar.number_input("sprung mass", value=325, step=50)    # 1/4 sprung mass (kg)
+m_unsprung = st.sidebar.number_input("unsprung mass", value=65, step=5)  # 1/4 unsprung mass (kg)
+
+# find relevant quantities
+CHI= m_unsprung/m_sprung
+X0 = damping_spring/m_sprung  # CS/M
+X1 = k_tyre/m_sprung  # - K1 - KT/M
+X2 = k_spring/m_sprung # - K2 - KS/M
+X3 = np.linspace(0,25,2500) #- F  - FREQUENCY
+
+#Defining the function
+A = X1 * X2
+B = X1 * X0 * X3
+C = CHI*pow(X3, 4)- (X1 + X2 * CHI + X2) * (pow(X3, 2)) + X1 * X2
+D = X1 * X0 * X3 - (1 + CHI) * X0*pow(X3, 3)
+# QCAR / TRANSMISSIBILITY - (A + Bj)/ (C + Dj) (Zdotdot/ Zrdotdot)
+RE = ((A * C) + (B * D)) / (pow(C,2) + pow(D,2))
+IM = ((B * C) - (A * D)) / (pow(C,2) + pow(D,2))
+A_sprungtoroad = np.sqrt(pow(RE,2) + pow(IM,2))
+
+# QCAR / TRANSMISSIBILITY - (A + Bj)/ (C + Dj) (Zdotdot/ (Fb/M))
+A = CHI*pow(X3, 4) - (X1+X2) * X3 * X3
+B = X0 * pow(X3, 3)
+C = CHI*pow(X3, 4)- (X1 + X2 * CHI + X2) * (pow(X3, 2)) + X1 * X2
+D = X1 * X0 * X3 - (1 + CHI) * X0*pow(X3, 3)
+RE = ((A * C) + (B * D)) / (pow(C,2) + pow(D,2))
+IM = ((B * C) - (A * D)) / (pow(C,2) + pow(D,2))
+A_sprungtobody = np.sqrt(pow(RE,2) + pow(IM,2))
+
+# QCAR / TRANSMISSIBILITY - (A + Bj)/ (C + Dj) (Zdotdot/ (Fw/M))
+A = X2 * X3 * X3
+B = X0 * pow(X3, 3)
+C = CHI*pow(X3, 4)- (X1 + X2 * CHI + X2) * (pow(X3, 2)) + X1 * X2
+D = X1 * X0 * X3 - (1 + CHI) * X0*pow(X3, 3)
+RE = ((A * C) + (B * D)) / (pow(C,2) + pow(D,2))
+IM = ((B * C) - (A * D)) / (pow(C,2) + pow(D,2))
+A_sprungtowheel = np.sqrt(pow(RE,2) + pow(IM,2))
+
+# Create the plot
+fig = plt.figure(figsize = (10, 5))
+plt.plot(X3, A_sprungtoroad,'r',label=r'$\ddot{Z}/\ddot{Z}_{r}$',linewidth=4)
+plt.plot(X3, A_sprungtobody,'g',label=r'$M\ddot{Z}/F_{b}$',linewidth=4)
+plt.plot(X3, A_sprungtowheel,'b',label=r'$M\ddot{Z}/F_{w}$',linewidth=4)
+
+plt.legend(loc=0,fontsize = 'xx-large')
+plt.xticks(fontsize=18)
+plt.yticks(fontsize=18)
+
+plt.ylabel('Response Gain', fontsize=18)
+plt.xlabel('Frequency (Hz)', fontsize=18)
+
+
+st.pyplot(plt)
+

@@ -78,9 +78,9 @@ A_sprungtowheel = np.sqrt(pow(RE,2) + pow(IM,2))
 
 # Create the plot
 fig = plt.figure(figsize = (10, 5))
-plt.plot(X3, A_sprungtoroad,'r',label=r'$\ddot{Z}/\ddot{Z}_{r}$',linewidth=4)
-plt.plot(X3, A_sprungtobody,'g',label=r'$M\ddot{Z}/F_{b}$',linewidth=4)
-plt.plot(X3, A_sprungtowheel,'b',label=r'$M\ddot{Z}/F_{w}$',linewidth=4)
+plt.plot(X3, A_sprungtoroad,'r',linewidth=4)
+plt.plot(X3, A_sprungtobody,'g',linewidth=4)
+plt.plot(X3, A_sprungtowheel,'b',linewidth=4)
 
 plt.legend(loc=0,fontsize = 'xx-large')
 plt.xticks(fontsize=18)

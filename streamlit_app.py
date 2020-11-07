@@ -29,10 +29,8 @@ Quarter-car response to road, tyre/wheel, and body inputs
 import numpy as np
 import streamlit as st
 import matplotlib.pyplot as plt
-from matplotlib import rcParams
-rcParams['font.family'] = 'serif'
-rcParams['font.serif'] = ['Computer Modern Roman']
-rcParams['text.usetex'] = True
+
+
 
 #st.title("Quarter-car response to road, tyre/wheel, and body inputs")
 
